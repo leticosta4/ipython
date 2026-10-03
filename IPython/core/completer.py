@@ -1787,7 +1787,7 @@ def back_unicode_name_matches(text: str) -> tuple[str, Sequence[str]]:
     if maybe_slash != '\\':
         return '', ()
 
-    char = text[-1]
+    char = None
     # no expand on quote for completion in strings.
     # nor backcomplete standard ascii keys
     if char in string.ascii_letters or char in ('"',"'"):

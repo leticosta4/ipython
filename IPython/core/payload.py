@@ -51,3 +51,5 @@ class PayloadManager(Configurable):
 
     def clear_payload(self):
         self._payload = []
+
+# track-flaky: commit trivial para disparar CI (2026-09-28)

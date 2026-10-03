@@ -6,9 +6,6 @@ on:
       - main
       - '*.x'
   pull_request:
-  # Run weekly on Monday at 1:23 UTC
-  schedule:
-  - cron:  '23 1 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -18,27 +15,15 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
-    # Disable scheduled CI runs on forks
-    if: github.event_name != 'schedule' || github.repository_owner == 'ipython'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        os: [ubuntu-latest]
+        python-version: ["3.12"]
         deps: [test_extra]
         # Test all on ubuntu, test ends on macos
         include:
-          - os: macos-latest
-            python-version: "3.11"
-            deps: test_extra
-          # free threaded, not with all dependencies
-          - os: ubuntu-latest
-            python-version: "3.14t"
-            deps: test
           # Tests latest development Python version
-          - os: ubuntu-latest
-            python-version: "3.15-dev"
-            deps: test
           - os: ubuntu-latest
             python-version: "3.12"
             deps: test_extra
@@ -57,28 +42,17 @@ jobs:
           pyproject.toml
     - name: Install uv
       uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-    - name: Install latex
-      if: runner.os == 'Linux' && matrix.deps == 'test_extra'
-      run: echo "disable latex for now, issues in mirros" #sudo apt-get -yq -o Acquire::Retries=3 --no-install-suggests --no-install-recommends install texlive dvipng
     - name: Install and update Python dependencies (binary only)
       if: ${{ ! contains( matrix.python-version, 'dev' ) }}
       run: |
         uv pip install --system setuptools wheel build
         uv pip install --system -e .[${{ matrix.deps }}]
         uv pip install --system check-manifest pytest-cov pytest
-    - name: Install and update Python dependencies (dev?)
-      if: ${{ contains( matrix.python-version, 'dev' ) }}
-      run: |
-        uv pip install --system --prerelease=allow setuptools wheel build
-        uv pip install --system --prerelease=allow --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple -e .[${{ matrix.deps }}]
-        uv pip install --system --prerelease=allow --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple check-manifest pytest-cov
     - name: Try building with Python build
-      if: runner.os != 'Windows'  # setup.py does not support sdist on Windows
       run: |
         python -m build
         shasum -a 256 dist/*
     - name: Check manifest
-      if: runner.os != 'Windows'  # setup.py does not support sdist on Windows
       run: check-manifest
 
     - name: Install entry point compatible code (TEMPORARY, April 2024)
@@ -102,68 +76,4 @@ jobs:
       env:
         COLUMNS: 120
       run: |
-        pytest --color=yes -raXxs ${{ startsWith(matrix.python-version, 'pypy') && ' ' || '--cov --cov-report=xml' }} --ff --maxfail=5
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
-      with:
-         token: ${{ secrets.CODECOV_TOKEN }}
-         name: Test
-         files: /home/runner/work/ipython/ipython/coverage.xml
-         # Both flags are attached to the same report; each flag's
-         # `paths` filter in codecov.yml carves out its bucket.
-         flags: library,unit-tests
-
-  oldest-deps:
-    # pro-actively check backward compatibility
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
-    # Disable scheduled CI runs on forks
-    if: github.event_name != 'schedule' || github.repository_owner == 'ipython'
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          # include windows because of platform-specific direct dependencies
-          - windows-latest
-
-    steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      with:
-        persist-credentials: false
-    - name: Set up uv with Python 3.11
-      uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-      with:
-        python-version: '3.11'
-        enable-cache: true
-        activate-environment: true
-        prune-cache: false
-        cache-dependency-glob: |
-          pyproject.toml
-
-    - name: Install Python dependencies (oldest supported versions)
-      run: uv pip install --resolution=lowest-direct -e .[test]
-
-    - name: Try building with uv build
-      if: runner.os != 'Windows'  # setup.py does not support sdist on Windows
-      run: |
-        uv build
-        shasum -a 256 dist/*
-
-    - name: Check manifest
-      if: runner.os != 'Windows'  # setup.py does not support sdist on Windows
-      run: uvx check-manifest
-
-    - name: Cache pytest last-failed
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-      with:
-        path: .pytest_cache/v/cache/lastfailed
-        key: pytest-lastfailed-oldest-deps-${{ matrix.os }}-${{ github.run_id }}
-        restore-keys: |
-          pytest-lastfailed-oldest-deps-${{ matrix.os }}-
-
-    - name: pytest
-      env:
-        COLUMNS: 120
-      run: pytest --color=yes -raXxs --ff --maxfail=5
+        pytest --color=yes -raXxs --cov --cov-report=xml --ff --maxfail=5

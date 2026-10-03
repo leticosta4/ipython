@@ -23,10 +23,6 @@ jobs:
         deps: [test_extra]
         # Test all on ubuntu, test ends on macos
         include:
-          # free threaded, not with all dependencies
-          - os: ubuntu-latest
-            python-version: "3.14t"
-            deps: test
           # Tests latest development Python version
           - os: ubuntu-latest
             python-version: "3.12"

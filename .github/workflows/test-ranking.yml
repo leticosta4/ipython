@@ -1,4 +1,4 @@
-name: Run tests (w/ pytest-ranking)
+name: Run pytest-ranking
 
 on:
   push:
@@ -102,8 +102,8 @@ jobs:
 
     - name: Save pytest-ranking cache
       id: save-pytest-ranking-cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ github.workspace }}/.pytest_cache/v/pytest_ranking_data
-          key: pytest-ranking-cache-${{ github.workflow }}-${{ runner.os }}-${{ matrix.mode }}-${{ github.run_id }}
+      if: always()
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ github.workspace }}/.pytest_cache/v/pytest_ranking_data
+        key: pytest-ranking-cache-${{ github.workflow }}-${{ runner.os }}-${{ matrix.mode }}-${{ github.run_id }}

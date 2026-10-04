@@ -1,4 +1,4 @@
-name: Run tests
+name: Run tests (w/ pytest-ranking)
 
 on:
   push:
@@ -11,32 +11,42 @@ on:
 permissions:
   contents: read
 
+env:
+  RANKING_PACKAGE: "pytest-ranking"
+
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    name: ranking (${{ matrix.mode }})
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.12"]
-        deps: [test_extra]
-        # Test all on ubuntu, test ends on macos
         include:
           # Tests latest development Python version
-          - os: ubuntu-latest
-            python-version: "3.12"
+          - python-version: "3.12"
             deps: test_extra
+            mode: rkn_qtf
+            weight: "1-0-0"
             want-latest-entry-point-code: true
-
+          - python-version: "3.12"
+            deps: test_extra
+            mode: rkn_recentfail
+            weight: "0-1-0"
+            want-latest-entry-point-code: true
+          - python-version: "3.12"
+            deps: test_extra
+            mode: rkn_hybrid
+            weight: "1-1-1"
+            want-latest-entry-point-code: true
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       with:
         persist-credentials: false
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.12
       uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.12"
         cache: pip
         cache-dependency-path: |
           pyproject.toml
@@ -48,6 +58,10 @@ jobs:
         uv pip install --system setuptools wheel build
         uv pip install --system -e .[${{ matrix.deps }}]
         uv pip install --system check-manifest pytest-cov pytest
+    - name: Install pytest-ranking
+      run: |
+        uv pip install --system "$RANKING_PACKAGE"
+        uv pip freeze --system
     - name: Try building with Python build
       run: |
         python -m build
@@ -68,12 +82,28 @@ jobs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: .pytest_cache/v/cache/lastfailed
-        key: pytest-lastfailed-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.deps }}-${{ github.run_id }}
+        key: pytest-lastfailed-${{ matrix.python-version }}-${{ matrix.deps }}-${{ github.run_id }}
         restore-keys: |
-          pytest-lastfailed-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.deps }}-
+          pytest-lastfailed-${{ matrix.python-version }}-${{ matrix.deps }}-
+
+    - name: Restore pytest-ranking cache
+      id: restore-pytest-ranking-cache
+      if: always()
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ github.workspace }}/.pytest_cache/v/pytest_ranking_data
+        key: pytest-ranking-cache-${{ github.workflow }}-${{ runner.os }}-${{ matrix.mode }}
 
     - name: pytest
       env:
         COLUMNS: 120
       run: |
-        pytest -p no:pytest-regsmart -p no:pytest-ranking --color=yes -raXxs --cov --cov-report=xml --ff --maxfail=5
+        pytest --rank --rank-weight=${{ matrix.weight }} --color=yes -raXxs --cov --cov-report=xml --ff --maxfail=5
+
+    - name: Save pytest-ranking cache
+      id: save-pytest-ranking-cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}/.pytest_cache/v/pytest_ranking_data
+          key: pytest-ranking-cache-${{ github.workflow }}-${{ runner.os }}-${{ matrix.mode }}-${{ github.run_id }}

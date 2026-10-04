@@ -36,6 +36,11 @@ jobs:
             want-latest-entry-point-code: true
           - python-version: "3.12"
             deps: test_extra
+            mode: rkn_simchgpath
+            weight: "0-0-1"
+            want-latest-entry-point-code: true
+          - python-version: "3.12"
+            deps: test_extra
             mode: rkn_hybrid
             weight: "1-1-1"
             want-latest-entry-point-code: true

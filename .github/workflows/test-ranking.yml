@@ -103,7 +103,7 @@ jobs:
       env:
         COLUMNS: 120
       run: |
-        pytest --rank --rank-weight=${{ matrix.weight }} --color=yes -raXxs --cov --cov-report=xml --ff --maxfail=5
+        pytest --rank --rank-weight=${{ matrix.weight }} --color=yes -raXxs
 
     - name: Save pytest-ranking cache
       id: save-pytest-ranking-cache

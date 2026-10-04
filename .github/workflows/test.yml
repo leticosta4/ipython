@@ -76,4 +76,4 @@ jobs:
       env:
         COLUMNS: 120
       run: |
-        pytest -p no:pytest-regsmart -p no:pytest-ranking --color=yes -raXxs --cov --cov-report=xml --ff --maxfail=5
+        pytest -p no:pytest-regsmart -p no:pytest-ranking --color=yes -raXxs

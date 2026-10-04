@@ -1,4 +1,4 @@
-name: Run tests (w/ pytest-regsmart)
+name: Run pytest-regsmart
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 env:
-  REGSMART_PACKAGE: "git+https://github.com/leticosta4/pytest-regsmart@53752e0958412a62dde6a3b445699067024406b5"
+  REGSMART_PACKAGE: "git+https://github.com/leticosta4/pytest-regsmart@c01aa119113e4fb1063bd3aef8a533b21f8ad1ca"
 
 jobs:
   test:

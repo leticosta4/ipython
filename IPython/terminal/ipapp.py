@@ -168,7 +168,7 @@ aliases.update(shell_aliases)  # type: ignore[arg-type]
 class LocateIPythonApp(BaseIPythonApplication):
     description = """print the path to the IPython dir"""
     subcommands = dict(
-        profile=('IPython.core.profileapp.ProfileLocate',
+        profileXX=('IPython.core.profileapp.ProfileLocate',
             "print the path to an IPython profile directory",
         ),
     )

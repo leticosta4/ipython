@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 env:
-  REGSMART_PACKAGE: "git+https://github.com/leticosta4/pytest-regsmart@c01aa119113e4fb1063bd3aef8a533b21f8ad1ca"
+  REGSMART_PACKAGE: "git+https://github.com/leticosta4/pytest-regsmart@ca897d2b09104ba83e829fe81329be6b8d665afd"
 
 jobs:
   test:
@@ -100,7 +100,7 @@ jobs:
       env:
         COLUMNS: 120
       run: |
-        pytest --regsmart --ranking-weight=${{ matrix.weight }} --color=yes -raXxs --cov --cov-report=xml --ff --maxfail=5
+        pytest --regsmart --ranking-weight=${{ matrix.weight }} --color=yes -raXxs
 
     - name: Save pytest-regsmart cache
       if: always()

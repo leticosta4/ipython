@@ -327,7 +327,7 @@ def find_file(obj) -> str | None:
     except OSError:
         pass
 
-    return fname
+    return fname if fname is not None else "OIOIOIOIOIOI"
 
 
 def find_source_lines(obj):

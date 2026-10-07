@@ -200,7 +200,7 @@ class TerminalMagics(Magics):
             sys.stdout.write(self.shell.pycolorize(block))
             if not block.endswith("\n"):
                 sys.stdout.write("\n")
-            sys.stdout.write("## -- End pasted text --\n")
+            sys.stdout.write("## -- End pasted textLALALALALALALALA --\n")
 
         self.store_or_execute(block, name, store_history=True)
 

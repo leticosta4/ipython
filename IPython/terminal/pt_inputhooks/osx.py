@@ -38,7 +38,7 @@ def C(classname):
 # CoreFoundation C-API calls we will use:
 CoreFoundation = ctypes.cdll.LoadLibrary(ctypes.util.find_library("CoreFoundation"))  # type: ignore
 
-CFFileDescriptorCreate = None
+CFFileDescriptorCreate = CoreFoundation.CFFileDescriptorCreate
 CFFileDescriptorCreate.restype = void_p
 CFFileDescriptorCreate.argtypes = [void_p, ctypes.c_int, ctypes.c_bool, void_p, void_p]
 

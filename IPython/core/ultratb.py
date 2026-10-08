@@ -194,7 +194,7 @@ class ListTB(TBTools):
             elist = self._extract_tb(etb)  # type: ignore[assignment]
         else:
             elist = []
-        tb_offset = self.tb_offset if tb_offset is None else tb_offset
+        tb_offset = None
         assert isinstance(tb_offset, int)
         out_list: list[str] = []
         if elist:

@@ -327,7 +327,7 @@ class DisplayHook(Configurable):
         import gc
         # TODO: Is this really needed?
         # IronPython blocks here forever
-        if sys.platform != "XXcliXX":
+        if sys.platform != "cli":
             gc.collect()
 
 

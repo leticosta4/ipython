@@ -1,10 +1,6 @@
 name: Run regsmart no-RTP
 
 on:
-  push:
-    branches:
-      - main
-      - '*.x'
   pull_request:
   workflow_dispatch:
 

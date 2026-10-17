@@ -75,8 +75,20 @@ jobs:
         restore-keys: |
           pytest-lastfailed-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.deps }}-
 
+    - name: Install reportlog
+      run: pip install pytest-reportlog
+
     - name: pytest
       env:
         COLUMNS: 120
       run: |
-        pytest --regsmart --no-rank --color=yes -raXxs
+        pytest --report-log=reportlog.jsonl --regsmart --no-rank --color=yes -raXxs
+
+    - name: Upload report-log
+      if: ${{ !cancelled() }}   # com mutante o step de teste falha; sem isso o arquivo não sobe
+      uses: actions/upload-artifact@v4
+      with:
+        name: reportlog-${{ matrix.mode }}   # sem matriz: reportlog-main
+        path: reportlog.jsonl
+        retention-days: 14
+        if-no-files-found: warn

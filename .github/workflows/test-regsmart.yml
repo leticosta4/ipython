@@ -1,10 +1,6 @@
 name: Run pytest-regsmart
 
 on:
-  push:
-    branches:
-      - main
-      - '*.x'
   pull_request:
   workflow_dispatch:
 
@@ -87,6 +83,9 @@ jobs:
         restore-keys: |
           pytest-lastfailed-${{ matrix.python-version }}-${{ matrix.deps }}-
 
+    - name: Install reportlog
+      run: pip install pytest-reportlog
+
     - name: Restore pytest-regsmart cache
       id: restore-pytest-regsmart-cache
       uses: actions/cache/restore@v4
@@ -100,7 +99,7 @@ jobs:
       env:
         COLUMNS: 120
       run: |
-        pytest --regsmart --ranking-weight=${{ matrix.weight }} --color=yes -raXxs
+        pytest --report-log=reportlog.jsonl --regsmart --ranking-weight=${{ matrix.weight }} --color=yes -raXxs
 
     - name: Save pytest-regsmart cache
       if: always()
@@ -108,3 +107,12 @@ jobs:
       with:
         path: ${{ github.workspace }}/.pytest_cache/v/pytest_ranked_selection_data
         key: pytest-regsmart-cache-${{ github.workflow }}-${{ runner.os }}-${{ matrix.mode }}-${{ github.run_id }}
+
+    - name: Upload report-log
+      if: ${{ !cancelled() }}   # com mutante o step de teste falha; sem isso o arquivo não sobe
+      uses: actions/upload-artifact@v4
+      with:
+        name: reportlog-${{ matrix.mode }}   # sem matriz: reportlog-main
+        path: reportlog.jsonl
+        retention-days: 14
+        if-no-files-found: warn

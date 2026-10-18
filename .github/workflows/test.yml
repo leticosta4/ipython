@@ -86,7 +86,7 @@ jobs:
       if: ${{ !cancelled() }}   
       uses: actions/upload-artifact@v4
       with:
-        name: reportlog-${{ matrix.mode }}  
+        name: reportlog-baseline
         path: reportlog.jsonl
         retention-days: 14
         if-no-files-found: warn

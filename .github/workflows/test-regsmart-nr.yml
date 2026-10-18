@@ -72,7 +72,7 @@ jobs:
           pytest-lastfailed-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.deps }}-
 
     - name: Install reportlog
-      run: uv pip install pytest-reportlog
+      run: uv pip install --system pytest-reportlog
 
     - name: pytest
       env:

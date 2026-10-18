@@ -84,7 +84,7 @@ jobs:
           pytest-lastfailed-${{ matrix.python-version }}-${{ matrix.deps }}-
 
     - name: Install reportlog
-      run: pip install pytest-reportlog
+      run: uv pip install pytest-reportlog
 
     - name: Restore pytest-regsmart cache
       id: restore-pytest-regsmart-cache

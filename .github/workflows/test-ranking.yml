@@ -88,7 +88,7 @@ jobs:
           pytest-lastfailed-${{ matrix.python-version }}-${{ matrix.deps }}-
 
     - name: Install reportlog
-      run: pip install pytest-reportlog
+      run: uv pip install --system pytest-reportlog
 
     - name: Restore pytest-ranking cache
       id: restore-pytest-ranking-cache
@@ -97,12 +97,14 @@ jobs:
       with:
         path: ${{ github.workspace }}/.pytest_cache/v/pytest_ranking_data
         key: pytest-ranking-cache-${{ github.workflow }}-${{ runner.os }}-${{ matrix.mode }}
+        restore-keys: |
+          pytest-ranking-cache-${{ github.workflow }}-${{ runner.os }}-${{ matrix.mode }}-
 
     - name: pytest
       env:
         COLUMNS: 120
       run: |
-        pytest --rank --rank-weight=${{ matrix.weight }} --color=yes -raXxs
+        pytest --report-log=reportlog.jsonl --rank --rank-weight=${{ matrix.weight }} --color=yes -raXxs
 
     - name: Save pytest-ranking cache
       id: save-pytest-ranking-cache

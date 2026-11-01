@@ -39,8 +39,8 @@ except ImportError:
 from _pytest.nodes import Collector
 from _pytest.outcomes import OutcomeException
 from _pytest.pathlib import fnmatch_ex, import_path
-from _pytest.python_api import approx
 from _pytest.warning_types import PytestWarning
+from pytest import approx
 
 if TYPE_CHECKING:
     import doctest

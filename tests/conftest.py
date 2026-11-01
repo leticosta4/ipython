@@ -41,6 +41,22 @@ def work_path():
     shutil.rmtree(str(path.resolve()))
 
 
+@pytest.fixture(autouse=True)
+def _restore_user_ns_builtins():
+    """Keep ``user_ns["__builtins__"]`` stable across tests.
+
+    Some tests (e.g. IPython.lib.demo.Demo, ``ipython -m module``) copy a
+    namespace produced by ``exec`` -- which carries ``__builtins__`` as a dict --
+    into the shared shell's user_ns. Later tests such as
+    tests/test_run.py::test_builtins_id then see a different object, so the
+    outcome depends on which tests ran before (e.g. under test selection).
+    """
+    ip = get_ipython()
+    saved = ip.user_ns.get("__builtins__", builtins)
+    yield
+    ip.user_ns["__builtins__"] = saved
+
+
 def nopage(strng, start=0, screen_lines=0, pager_cmd=None):
     if isinstance(strng, dict):
         strng = strng.get("text/plain", "")
